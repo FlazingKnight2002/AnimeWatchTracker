@@ -48,9 +48,21 @@ export default function Home() {
     title: string;
     episodesWatched: number;
     totalEpisodes?: number;
-    totalSeasons?: number; // Added totalSeasons to this interface as well
+    totalSeasons?: number;
     status: string;
   }) => {
+    // If total episodes is 1, add as movie instead
+    if (data.totalEpisodes === 1) {
+      const newMovie: Movie = {
+        id: Date.now().toString(),
+        title: data.title,
+        isAnime: true,
+        watchCount: 1,
+      };
+      setMovies([...movies, newMovie]);
+      return;
+    }
+
     const newAnime: AnimeShow = {
       id: Date.now().toString(),
       ...data,
@@ -100,6 +112,18 @@ export default function Home() {
   };
 
   const handleAddAnimeQuick = async (anime: AnimeInfo) => {
+    // If total episodes is 1, add as movie instead
+    if (anime.totalEpisodes === 1) {
+      const newMovie: Movie = {
+        id: Date.now().toString(),
+        title: anime.title,
+        isAnime: true,
+        watchCount: 1,
+      };
+      setMovies((prevMovies) => [...prevMovies, newMovie]);
+      return;
+    }
+
     try {
       const response = await fetch("/api/anime", {
         method: "POST",
@@ -108,18 +132,17 @@ export default function Home() {
           title: anime.title,
           episodesWatched: 0,
           totalEpisodes: anime.totalEpisodes,
-          totalSeasons: anime.totalSeasons, // Added totalSeasons here
+          totalSeasons: anime.totalSeasons,
           status: "watching",
         }),
       });
       if (!response.ok) {
         throw new Error("Failed to add anime");
       }
-      const newAnime: AnimeShow = await response.json(); // Assuming API returns the added anime
+      const newAnime: AnimeShow = await response.json();
       setAnimeShows((prevShows) => [...prevShows, newAnime]);
     } catch (error) {
       console.error("Error adding anime quickly:", error);
-      // Handle error appropriately, e.g., show a notification to the user
     }
   };
 
