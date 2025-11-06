@@ -54,6 +54,13 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
     setOpen(false);
   };
 
+  const handleAnimeSelect = (anime: { title: string; totalEpisodes?: number }) => {
+    setTitle(anime.title);
+    if (anime.totalEpisodes) {
+      setTotalEpisodes(anime.totalEpisodes.toString());
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -74,7 +81,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
           <div className="space-y-2">
             <Label htmlFor="search">Search Anime</Label>
             <AnimeSearchInput
-              onSelect={(selectedTitle) => setTitle(selectedTitle)}
+              onSelect={handleAnimeSelect}
               placeholder="Type to search..."
             />
           </div>

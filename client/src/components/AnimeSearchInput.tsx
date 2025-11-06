@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fuzzySearch } from "@/lib/animeDatabase";
+import { fuzzySearch, type AnimeInfo } from "@/lib/animeDatabase";
 import { cn } from "@/lib/utils";
 
 interface AnimeSearchInputProps {
-  onSelect: (title: string) => void;
+  onSelect: (anime: AnimeInfo) => void;
   placeholder?: string;
   className?: string;
 }
@@ -16,7 +16,7 @@ export default function AnimeSearchInput({
   className,
 }: AnimeSearchInputProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<AnimeInfo[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,8 +49,8 @@ export default function AnimeSearchInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = (title: string) => {
-    onSelect(title);
+  const handleSelect = (anime: AnimeInfo) => {
+    onSelect(anime);
     setQuery("");
     setResults([]);
     setIsOpen(false);
@@ -98,7 +98,7 @@ export default function AnimeSearchInput({
         >
           {results.map((result, index) => (
             <button
-              key={result}
+              key={result.title}
               onClick={() => handleSelect(result)}
               className={cn(
                 "w-full text-left px-4 py-3 text-sm hover-elevate active-elevate-2",
@@ -106,7 +106,14 @@ export default function AnimeSearchInput({
               )}
               data-testid={`button-result-${index}`}
             >
-              {result}
+              <div className="flex items-center justify-between">
+                <span>{result.title}</span>
+                {result.totalEpisodes && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {result.totalEpisodes} eps
+                  </span>
+                )}
+              </div>
             </button>
           ))}
         </div>
