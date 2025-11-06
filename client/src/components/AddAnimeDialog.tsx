@@ -59,8 +59,11 @@ export default function AddAnimeDialog({ onAdd, onEdit, onClose, isEdit = false,
       setTitle(animeToEdit.title);
       setEpisodesWatched(animeToEdit.episodesWatched.toString());
       setTotalEpisodes(animeToEdit.totalEpisodes?.toString() || "");
+      setTotalSeasons(animeToEdit.totalSeasons?.toString() || "");
       setStatus(animeToEdit.status);
       setOpen(true);
+    } else if (!isEdit) {
+      setOpen(false);
     }
   }, [isEdit, animeToEdit]);
 

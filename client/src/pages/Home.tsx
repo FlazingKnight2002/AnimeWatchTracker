@@ -32,6 +32,7 @@ export default function Home() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingAnime, setEditingAnime] = useState<AnimeShow | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const totalEpisodes = animeShows.reduce((sum, show) => sum + show.episodesWatched, 0);
   const totalMovies = movies.length;
@@ -105,9 +106,11 @@ export default function Home() {
   };
 
   const handleEditAnime = (id: string) => {
-    const anime = animeShows.find(show => show.id === id);
+    const anime = animeShows.find((a) => a.id === id);
     if (anime) {
+      console.log("Edit anime:", id);
       setEditingAnime(anime);
+      setIsEditDialogOpen(true);
     }
   };
 
@@ -126,6 +129,7 @@ export default function Home() {
         : show
     ));
     setEditingAnime(null);
+    setIsEditDialogOpen(false);
   };
 
   const handleDeleteMovie = (id: string) => {
@@ -155,6 +159,12 @@ export default function Home() {
       status: "watching",
     };
     setAnimeShows((prevShows) => [...prevShows, newAnime]);
+    setIsEditDialogOpen(true); // Open the dialog after adding
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingAnime(null);
+    setIsEditDialogOpen(false);
   };
 
   const watchingShows = filteredAnimeShows.filter((s) => s.status === "watching");
@@ -223,12 +233,13 @@ export default function Home() {
           <TabsContent value="anime" className="mt-0 space-y-6">
             <div className="flex justify-end gap-2">
               <AddAnimeDialog onAdd={handleAddAnime} />
-              {editingAnime && (
+              {isEditDialogOpen && editingAnime && (
                 <AddAnimeDialog
-                  onAdd={handleUpdateAnime}
-                  initialData={editingAnime}
+                  onAdd={handleAddAnime}
+                  onEdit={handleUpdateAnime}
+                  onClose={handleCloseEditDialog}
                   isEdit={true}
-                  onClose={() => setEditingAnime(null)}
+                  animeToEdit={editingAnime}
                 />
               )}
             </div>
