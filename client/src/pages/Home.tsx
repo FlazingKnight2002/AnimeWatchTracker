@@ -31,6 +31,7 @@ export default function Home() {
   const [animeShows, setAnimeShows] = useState<AnimeShow[]>([]);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingAnime, setEditingAnime] = useState<AnimeShow | null>(null);
 
   const totalEpisodes = animeShows.reduce((sum, show) => sum + show.episodesWatched, 0);
   const totalMovies = movies.length;
@@ -104,7 +105,27 @@ export default function Home() {
   };
 
   const handleEditAnime = (id: string) => {
-    console.log("Edit anime:", id);
+    const anime = animeShows.find(show => show.id === id);
+    if (anime) {
+      setEditingAnime(anime);
+    }
+  };
+
+  const handleUpdateAnime = (data: {
+    title: string;
+    episodesWatched: number;
+    totalEpisodes?: number;
+    totalSeasons?: number;
+    status: string;
+  }) => {
+    if (!editingAnime) return;
+
+    setAnimeShows(animeShows.map(show =>
+      show.id === editingAnime.id
+        ? { ...show, ...data }
+        : show
+    ));
+    setEditingAnime(null);
   };
 
   const handleDeleteMovie = (id: string) => {
@@ -200,8 +221,16 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="anime" className="mt-0 space-y-6">
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <AddAnimeDialog onAdd={handleAddAnime} />
+              {editingAnime && (
+                <AddAnimeDialog
+                  onAdd={handleUpdateAnime}
+                  initialData={editingAnime}
+                  isEdit={true}
+                  onClose={() => setEditingAnime(null)}
+                />
+              )}
             </div>
             {animeShows.length === 0 ? (
               <EmptyState

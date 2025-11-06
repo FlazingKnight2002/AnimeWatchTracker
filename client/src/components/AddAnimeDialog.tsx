@@ -28,9 +28,25 @@ interface AddAnimeDialogProps {
     totalEpisodes?: number;
     status: string;
   }) => void;
+  onEdit: (data: {
+    id: string;
+    title: string;
+    episodesWatched: number;
+    totalEpisodes?: number;
+    status: string;
+  }) => void;
+  onClose?: () => void;
+  isEdit?: boolean;
+  animeToEdit?: {
+    id: string;
+    title: string;
+    episodesWatched: number;
+    totalEpisodes?: number;
+    status: string;
+  };
 }
 
-export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
+export default function AddAnimeDialog({ onAdd, onEdit, onClose, isEdit = false, animeToEdit }: AddAnimeDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [episodesWatched, setEpisodesWatched] = useState("0");
@@ -38,16 +54,31 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
   const [totalSeasons, setTotalSeasons] = useState("");
   const [status, setStatus] = useState("watching");
 
+  useEffect(() => {
+    if (isEdit && animeToEdit) {
+      setTitle(animeToEdit.title);
+      setEpisodesWatched(animeToEdit.episodesWatched.toString());
+      setTotalEpisodes(animeToEdit.totalEpisodes?.toString() || "");
+      setStatus(animeToEdit.status);
+      setOpen(true);
+    }
+  }, [isEdit, animeToEdit]);
+
   const handleSubmit = () => {
     if (!title.trim()) return;
 
-    onAdd({
+    const baseData = {
       title: title.trim(),
       episodesWatched: parseInt(episodesWatched) || 0,
       totalEpisodes: totalEpisodes ? parseInt(totalEpisodes) : undefined,
-      totalSeasons: totalSeasons ? parseInt(totalSeasons) : undefined,
       status,
-    });
+    };
+
+    if (isEdit && animeToEdit) {
+      onEdit({ ...baseData, id: animeToEdit.id });
+    } else {
+      onAdd(baseData);
+    }
 
     setTitle("");
     setEpisodesWatched("0");
@@ -55,6 +86,9 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
     setTotalSeasons("");
     setStatus("watching");
     setOpen(false);
+    if (onClose) {
+      onClose();
+    }
   };
 
   const handleAnimeSelect = (anime: { title: string; totalEpisodes?: number; totalSeasons?: number }) => {
@@ -74,30 +108,39 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
   }, [status, totalEpisodes]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="lg" className="gap-2" data-testid="button-add-anime">
-          <Plus className="h-5 w-5" />
-          Add Anime
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen && isEdit && onClose) {
+        onClose();
+      }
+    }}>
+      {!isEdit && (
+        <DialogTrigger asChild>
+          <Button size="lg" className="gap-2" data-testid="button-add-anime">
+            <Plus className="h-5 w-5" />
+            Add Anime
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent data-testid="dialog-add-anime">
         <DialogHeader>
-          <DialogTitle>Add New Anime</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Anime" : "Add Anime"}</DialogTitle>
           <DialogDescription>
-            Search for an anime or enter the title manually to start tracking.
+            {isEdit ? "Edit your anime details." : "Search for an anime or enter the title manually to start tracking."}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search Anime</Label>
-            <AnimeSearchInput
-              onSelect={handleAnimeSelect}
-              placeholder="Type to search..."
-            />
-          </div>
-          
+          {!isEdit && (
+            <div className="space-y-2">
+              <Label htmlFor="search">Search Anime</Label>
+              <AnimeSearchInput
+                onSelect={handleAnimeSelect}
+                placeholder="Type to search..."
+              />
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -108,7 +151,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
               data-testid="input-title"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="watched">Episodes Watched</Label>
@@ -121,7 +164,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
                 data-testid="input-episodes-watched"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="total">Total Episodes</Label>
               <Input
@@ -135,7 +178,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="seasons">Total Seasons</Label>
             <Input
@@ -148,7 +191,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
               data-testid="input-total-seasons"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select value={status} onValueChange={setStatus}>
@@ -164,13 +207,16 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
             </Select>
           </div>
         </div>
-        
+
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} data-testid="button-cancel">
+          <Button variant="outline" onClick={() => {
+            setOpen(false);
+            if (onClose) onClose();
+          }} data-testid="button-cancel">
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!title.trim()} data-testid="button-submit">
-            Add Anime
+            {isEdit ? "Save Changes" : "Add Anime"}
           </Button>
         </DialogFooter>
       </DialogContent>
