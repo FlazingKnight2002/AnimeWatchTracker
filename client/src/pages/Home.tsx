@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Tv, Film, BarChart3 } from "lucide-react";
+import { Tv, Film, BarChart3, Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import AnimeCard from "@/components/AnimeCard";
 import MovieCard from "@/components/MovieCard";
 import StatsCard from "@/components/StatsCard";
@@ -27,11 +28,19 @@ interface Movie {
 export default function Home() {
   const [animeShows, setAnimeShows] = useState<AnimeShow[]>([]);
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const totalEpisodes = animeShows.reduce((sum, show) => sum + show.episodesWatched, 0);
   const totalMovies = movies.length;
   const animeMovies = movies.filter(m => m.isAnime).length;
   const regularMovies = movies.filter(m => !m.isAnime).length;
+
+  const filteredAnimeShows = animeShows.filter(show =>
+    show.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const filteredMovies = movies.filter(movie =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleAddAnime = (data: {
     title: string;
@@ -87,8 +96,8 @@ export default function Home() {
     setMovies(movies.filter((movie) => movie.id !== id));
   };
 
-  const watchingShows = animeShows.filter((s) => s.status === "watching");
-  const completedShows = animeShows.filter((s) => s.status === "completed");
+  const watchingShows = filteredAnimeShows.filter((s) => s.status === "watching");
+  const completedShows = filteredAnimeShows.filter((s) => s.status === "completed");
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,6 +119,20 @@ export default function Home() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search anime or movies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+              data-testid="input-search"
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <StatsCard
             title="Total Episodes"
@@ -189,13 +212,13 @@ export default function Home() {
                   </div>
                 )}
 
-                {animeShows.filter(
+                {filteredAnimeShows.filter(
                   (s) => s.status !== "watching" && s.status !== "completed"
                 ).length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold mb-3">Other</h2>
                     <div className="space-y-3">
-                      {animeShows
+                      {filteredAnimeShows
                         .filter(
                           (s) => s.status !== "watching" && s.status !== "completed"
                         )
@@ -228,7 +251,7 @@ export default function Home() {
               />
             ) : (
               <div className="space-y-3">
-                {movies.map((movie) => (
+                {filteredMovies.map((movie) => (
                   <MovieCard
                     key={movie.id}
                     {...movie}
