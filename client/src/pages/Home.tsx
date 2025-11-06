@@ -132,23 +132,19 @@ export default function Home() {
         </div>
 
         <Tabs defaultValue="anime" className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <TabsList>
-              <TabsTrigger value="anime" data-testid="tab-anime">
-                Anime Shows
-              </TabsTrigger>
-              <TabsTrigger value="movies" data-testid="tab-movies">
-                Movies
-              </TabsTrigger>
-            </TabsList>
+          <TabsList className="mb-6">
+            <TabsTrigger value="anime" data-testid="tab-anime">
+              Anime Shows
+            </TabsTrigger>
+            <TabsTrigger value="movies" data-testid="tab-movies">
+              Movies
+            </TabsTrigger>
+          </TabsList>
 
-            <div className="flex gap-2">
+          <TabsContent value="anime" className="mt-0 space-y-6">
+            <div className="flex justify-end">
               <AddAnimeDialog onAdd={handleAddAnime} />
-              <AddMovieDialog onAdd={handleAddMovie} />
             </div>
-          </div>
-
-          <TabsContent value="anime" className="mt-0">
             {animeShows.length === 0 ? (
               <EmptyState
                 icon={Tv}
@@ -156,7 +152,7 @@ export default function Home() {
                 description="Start tracking your anime journey by adding your first show using the button above."
               />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {watchingShows.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold mb-3">Watching</h2>
@@ -220,7 +216,10 @@ export default function Home() {
             )}
           </TabsContent>
 
-          <TabsContent value="movies" className="mt-0">
+          <TabsContent value="movies" className="mt-0 space-y-6">
+            <div className="flex justify-end">
+              <AddMovieDialog onAdd={handleAddMovie} />
+            </div>
             {movies.length === 0 ? (
               <EmptyState
                 icon={Film}
