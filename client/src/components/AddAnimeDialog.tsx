@@ -35,6 +35,7 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
   const [title, setTitle] = useState("");
   const [episodesWatched, setEpisodesWatched] = useState("0");
   const [totalEpisodes, setTotalEpisodes] = useState("");
+  const [totalSeasons, setTotalSeasons] = useState("");
   const [status, setStatus] = useState("watching");
 
   const handleSubmit = () => {
@@ -44,20 +45,25 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
       title: title.trim(),
       episodesWatched: parseInt(episodesWatched) || 0,
       totalEpisodes: totalEpisodes ? parseInt(totalEpisodes) : undefined,
+      totalSeasons: totalSeasons ? parseInt(totalSeasons) : undefined,
       status,
     });
 
     setTitle("");
     setEpisodesWatched("0");
     setTotalEpisodes("");
+    setTotalSeasons("");
     setStatus("watching");
     setOpen(false);
   };
 
-  const handleAnimeSelect = (anime: { title: string; totalEpisodes?: number }) => {
+  const handleAnimeSelect = (anime: { title: string; totalEpisodes?: number; totalSeasons?: number }) => {
     setTitle(anime.title);
     if (anime.totalEpisodes) {
       setTotalEpisodes(anime.totalEpisodes.toString());
+    }
+    if (anime.totalSeasons) {
+      setTotalSeasons(anime.totalSeasons.toString());
     }
   };
 
@@ -128,6 +134,19 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
                 data-testid="input-total-episodes"
               />
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="seasons">Total Seasons</Label>
+            <Input
+              id="seasons"
+              type="number"
+              min="0"
+              value={totalSeasons}
+              onChange={(e) => setTotalSeasons(e.target.value)}
+              placeholder="Optional"
+              data-testid="input-total-seasons"
+            />
           </div>
           
           <div className="space-y-2">

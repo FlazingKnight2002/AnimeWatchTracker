@@ -16,6 +16,7 @@ interface AnimeShow {
   title: string;
   episodesWatched: number;
   totalEpisodes?: number;
+  totalSeasons?: number; // Added totalSeasons field
   status: string;
 }
 
@@ -47,6 +48,7 @@ export default function Home() {
     title: string;
     episodesWatched: number;
     totalEpisodes?: number;
+    totalSeasons?: number; // Added totalSeasons to this interface as well
     status: string;
   }) => {
     const newAnime: AnimeShow = {
@@ -97,15 +99,28 @@ export default function Home() {
     setMovies(movies.filter((movie) => movie.id !== id));
   };
 
-  const handleQuickAddAnime = (anime: AnimeInfo) => {
-    const newAnime: AnimeShow = {
-      id: Date.now().toString(),
-      title: anime.title,
-      episodesWatched: 0,
-      totalEpisodes: anime.totalEpisodes,
-      status: "watching",
-    };
-    setAnimeShows([...animeShows, newAnime]);
+  const handleAddAnimeQuick = async (anime: AnimeInfo) => {
+    try {
+      const response = await fetch("/api/anime", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: anime.title,
+          episodesWatched: 0,
+          totalEpisodes: anime.totalEpisodes,
+          totalSeasons: anime.totalSeasons, // Added totalSeasons here
+          status: "watching",
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add anime");
+      }
+      const newAnime: AnimeShow = await response.json(); // Assuming API returns the added anime
+      setAnimeShows((prevShows) => [...prevShows, newAnime]);
+    } catch (error) {
+      console.error("Error adding anime quickly:", error);
+      // Handle error appropriately, e.g., show a notification to the user
+    }
   };
 
   const watchingShows = filteredAnimeShows.filter((s) => s.status === "watching");
@@ -134,7 +149,7 @@ export default function Home() {
         <div className="mb-8">
           <UnifiedSearch
             onFilterChange={setSearchQuery}
-            onAddAnime={handleQuickAddAnime}
+            onAddAnime={handleAddAnimeQuick}
             placeholder="Search or add anime..."
             className="max-w-md"
           />

@@ -1,6 +1,7 @@
 export interface AnimeInfo {
   title: string;
   totalEpisodes?: number;
+  totalSeasons?: number;
 }
 
 export const popularAnime: AnimeInfo[] = [

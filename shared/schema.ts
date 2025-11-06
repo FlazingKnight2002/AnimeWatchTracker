@@ -8,6 +8,7 @@ export const animeShows = pgTable("anime_shows", {
   title: text("title").notNull(),
   episodesWatched: integer("episodes_watched").notNull().default(0),
   totalEpisodes: integer("total_episodes"),
+  totalSeasons: integer("total_seasons"),
   status: text("status").notNull().default("watching"),
 });
 

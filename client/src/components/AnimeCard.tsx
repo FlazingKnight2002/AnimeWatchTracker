@@ -8,7 +8,8 @@ interface AnimeCardProps {
   id: string;
   title: string;
   episodesWatched: number;
-  totalEpisodes?: number | null;
+  totalEpisodes?: number;
+  totalSeasons?: number;
   status: string;
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
@@ -21,6 +22,7 @@ export default function AnimeCard({
   title,
   episodesWatched,
   totalEpisodes,
+  totalSeasons,
   status,
   onIncrement,
   onDecrement,
@@ -28,7 +30,7 @@ export default function AnimeCard({
   onDelete,
 }: AnimeCardProps) {
   const progress = totalEpisodes ? (episodesWatched / totalEpisodes) * 100 : 0;
-  
+
   const statusColors: Record<string, string> = {
     watching: "bg-primary text-primary-foreground",
     completed: "bg-chart-3 text-primary-foreground",
@@ -49,7 +51,7 @@ export default function AnimeCard({
                 {status}
               </Badge>
             </div>
-            
+
             <div className="flex items-center gap-3 mb-3">
               <Button
                 size="icon"
@@ -61,7 +63,7 @@ export default function AnimeCard({
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              
+
               <div className="flex items-center gap-1 font-mono text-lg font-semibold min-w-[80px] justify-center">
                 <span data-testid="text-episodes-watched">{episodesWatched}</span>
                 {totalEpisodes && (
@@ -73,7 +75,7 @@ export default function AnimeCard({
                   </>
                 )}
               </div>
-              
+
               <Button
                 size="icon"
                 variant="outline"
@@ -84,12 +86,18 @@ export default function AnimeCard({
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {totalEpisodes && (
               <Progress value={progress} className="h-2" data-testid="progress-episodes" />
             )}
+
+            {totalSeasons && (
+              <div className="text-sm text-muted-foreground">
+                {totalSeasons} {totalSeasons === 1 ? 'Season' : 'Seasons'}
+              </div>
+            )}
           </div>
-          
+
           <div className="flex gap-1">
             <Button
               size="icon"
