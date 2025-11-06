@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +60,12 @@ export default function AddAnimeDialog({ onAdd }: AddAnimeDialogProps) {
       setTotalEpisodes(anime.totalEpisodes.toString());
     }
   };
+
+  useEffect(() => {
+    if (status === "completed" && totalEpisodes) {
+      setEpisodesWatched(totalEpisodes);
+    }
+  }, [status, totalEpisodes]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
