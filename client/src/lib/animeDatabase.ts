@@ -55,18 +55,34 @@ export const popularAnime: AnimeInfo[] = [
   { title: "86 Eighty-Six", totalEpisodes: 23 },
   { title: "Horimiya", totalEpisodes: 13 },
   { title: "Fruits Basket", totalEpisodes: 63 },
+  { title: "Jojo's Bizarre Adventure", totalEpisodes: 190 }, 
+  { title: "A Silent Voice", totalEpisodes: 1 }, 
+  { title: "Hellsing Ultimate", totalEpisodes: 10 },
+  { title: "Gurren Lagann", totalEpisodes: 27 },
+  { title: "Code Geass R2", totalEpisodes: 25 },
+  { title: "Your Name", totalEpisodes: 1 }, 
+  { title: "Sonic X", totalEpisodes: 78 }, 
+  { title: "The Apothecary Diaries", totalEpisodes: 48 }, 
+  { title: "Date A Live", totalEpisodes: 58 }, 
+  { title: "Komi Can't Communicate", totalEpisodes: 24 }, 
+  { title: "Gachiakuta", totalEpisodes: 24 }, 
+  { title: "Solo Leveling", totalEpisodes: 25 }, 
+  { title: "Kaiju No. 8", totalEpisodes: 12 },
+  { title: "Frieren: Beyond Journey's End", totalEpisodes: 28 },
+  { title: "Dandadan", totalEpisodes: 12 }, 
+  { title: "Delicious in Dungeon", totalEpisodes: 24 },
 ];
 
 export function fuzzySearch(query: string, limit: number = 8): AnimeInfo[] {
   if (!query.trim()) return [];
-  
+
   const lowerQuery = query.toLowerCase();
-  
+
   const scored = popularAnime
     .map(anime => {
       const lowerAnime = anime.title.toLowerCase();
       let score = 0;
-      
+
       if (lowerAnime === lowerQuery) {
         score = 1000;
       } else if (lowerAnime.startsWith(lowerQuery)) {
@@ -82,17 +98,17 @@ export function fuzzySearch(query: string, limit: number = 8): AnimeInfo[] {
           }
         }
       }
-      
+
       if (score > 0) {
         score -= anime.title.length * 0.1;
       }
-      
+
       return { anime, score };
     })
     .filter(item => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map(item => item.anime);
-  
+
   return scored;
 }
