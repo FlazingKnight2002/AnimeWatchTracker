@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Globe } from "lucide-react";
-import { fuzzySearch, type AnimeInfo } from "@/lib/animeDatabase";
+import { fuzzySearch, addAnimeToDatabase, type AnimeInfo } from "@/lib/animeDatabase";
 import { searchExternalAnime, type ExternalAnimeResult } from "@/lib/externalAnimeApi";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -103,10 +103,15 @@ export default function UnifiedSearch({
   };
 
   const handleAddExternalAnime = (anime: ExternalAnimeResult) => {
-    onAddAnime({
+    const animeInfo = {
       title: anime.title,
       totalEpisodes: anime.totalEpisodes || undefined,
-    });
+    };
+    
+    // Add to local database for future searches
+    addAnimeToDatabase(animeInfo);
+    
+    onAddAnime(animeInfo);
     setQuery("");
     setResults([]);
     setExternalResults([]);

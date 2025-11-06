@@ -73,6 +73,16 @@ export const popularAnime: AnimeInfo[] = [
   { title: "Delicious in Dungeon", totalEpisodes: 24 },
 ];
 
+export function addAnimeToDatabase(anime: AnimeInfo): void {
+  const exists = popularAnime.some(
+    existing => existing.title.toLowerCase() === anime.title.toLowerCase()
+  );
+  
+  if (!exists) {
+    popularAnime.push(anime);
+  }
+}
+
 export function fuzzySearch(query: string, limit: number = 8): AnimeInfo[] {
   if (!query.trim()) return [];
 
