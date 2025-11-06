@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Tv, Film, BarChart3, Search } from "lucide-react";
+import { Tv, Film, BarChart3 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import AnimeCard from "@/components/AnimeCard";
 import MovieCard from "@/components/MovieCard";
 import StatsCard from "@/components/StatsCard";
@@ -9,6 +8,8 @@ import AddAnimeDialog from "@/components/AddAnimeDialog";
 import AddMovieDialog from "@/components/AddMovieDialog";
 import EmptyState from "@/components/EmptyState";
 import ThemeToggle from "@/components/ThemeToggle";
+import UnifiedSearch from "@/components/UnifiedSearch";
+import type { AnimeInfo } from "@/lib/animeDatabase";
 
 interface AnimeShow {
   id: string;
@@ -96,6 +97,17 @@ export default function Home() {
     setMovies(movies.filter((movie) => movie.id !== id));
   };
 
+  const handleQuickAddAnime = (anime: AnimeInfo) => {
+    const newAnime: AnimeShow = {
+      id: Date.now().toString(),
+      title: anime.title,
+      episodesWatched: 0,
+      totalEpisodes: anime.totalEpisodes,
+      status: "watching",
+    };
+    setAnimeShows([...animeShows, newAnime]);
+  };
+
   const watchingShows = filteredAnimeShows.filter((s) => s.status === "watching");
   const completedShows = filteredAnimeShows.filter((s) => s.status === "completed");
 
@@ -120,17 +132,12 @@ export default function Home() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search anime or movies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-              data-testid="input-search"
-            />
-          </div>
+          <UnifiedSearch
+            onFilterChange={setSearchQuery}
+            onAddAnime={handleQuickAddAnime}
+            placeholder="Search or add anime..."
+            className="max-w-md"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
