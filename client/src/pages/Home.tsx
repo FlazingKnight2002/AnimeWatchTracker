@@ -124,26 +124,16 @@ export default function Home() {
       return;
     }
 
-    try {
-      const response = await fetch("/api/anime", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: anime.title,
-          episodesWatched: 0,
-          totalEpisodes: anime.totalEpisodes,
-          totalSeasons: anime.totalSeasons,
-          status: "watching",
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add anime");
-      }
-      const newAnime: AnimeShow = await response.json();
-      setAnimeShows((prevShows) => [...prevShows, newAnime]);
-    } catch (error) {
-      console.error("Error adding anime quickly:", error);
-    }
+    // Add directly to state without API call for now (since storage is not set up)
+    const newAnime: AnimeShow = {
+      id: Date.now().toString(),
+      title: anime.title,
+      episodesWatched: 0,
+      totalEpisodes: anime.totalEpisodes,
+      totalSeasons: anime.totalSeasons,
+      status: "watching",
+    };
+    setAnimeShows((prevShows) => [...prevShows, newAnime]);
   };
 
   const watchingShows = filteredAnimeShows.filter((s) => s.status === "watching");

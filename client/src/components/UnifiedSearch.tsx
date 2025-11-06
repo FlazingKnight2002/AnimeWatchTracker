@@ -106,6 +106,7 @@ export default function UnifiedSearch({
     const animeInfo = {
       title: anime.title,
       totalEpisodes: anime.totalEpisodes || undefined,
+      totalSeasons: undefined,
     };
     
     // Add to local database for future searches
