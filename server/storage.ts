@@ -30,7 +30,8 @@ export class ReplitDBStorage implements IStorage {
 
   async getAnimeShow(id: string): Promise<AnimeShow | undefined> {
     const show = await this.db.get(`anime:${id}`);
-    return show ? JSON.parse(show) : undefined;
+    if (!show) return undefined;
+    return typeof show === 'string' ? JSON.parse(show) : show;
   }
 
   async getAllAnimeShows(): Promise<AnimeShow[]> {
@@ -40,7 +41,7 @@ export class ReplitDBStorage implements IStorage {
     for (const key of keys) {
       const show = await this.db.get(key);
       if (show) {
-        shows.push(JSON.parse(show));
+        shows.push(typeof show === 'string' ? JSON.parse(show) : show);
       }
     }
     
@@ -83,7 +84,8 @@ export class ReplitDBStorage implements IStorage {
 
   async getMovie(id: string): Promise<Movie | undefined> {
     const movie = await this.db.get(`movie:${id}`);
-    return movie ? JSON.parse(movie) : undefined;
+    if (!movie) return undefined;
+    return typeof movie === 'string' ? JSON.parse(movie) : movie;
   }
 
   async getAllMovies(): Promise<Movie[]> {
@@ -93,7 +95,7 @@ export class ReplitDBStorage implements IStorage {
     for (const key of keys) {
       const movie = await this.db.get(key);
       if (movie) {
-        movies.push(JSON.parse(movie));
+        movies.push(typeof movie === 'string' ? JSON.parse(movie) : movie);
       }
     }
     
