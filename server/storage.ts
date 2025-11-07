@@ -1,3 +1,4 @@
+
 import {
   type AnimeShow,
   type InsertAnimeShow,
@@ -5,6 +6,7 @@ import {
   type InsertMovie,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import Database from "@replit/database";
 
 export interface IStorage {
   getAnimeShow(id: string): Promise<AnimeShow | undefined>;
@@ -19,21 +21,30 @@ export interface IStorage {
   deleteMovie(id: string): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private animeShows: Map<string, AnimeShow>;
-  private movies: Map<string, Movie>;
+export class ReplitDBStorage implements IStorage {
+  private db: Database;
 
   constructor() {
-    this.animeShows = new Map();
-    this.movies = new Map();
+    this.db = new Database();
   }
 
   async getAnimeShow(id: string): Promise<AnimeShow | undefined> {
-    return this.animeShows.get(id);
+    const show = await this.db.get(`anime:${id}`);
+    return show ? JSON.parse(show) : undefined;
   }
 
   async getAllAnimeShows(): Promise<AnimeShow[]> {
-    return Array.from(this.animeShows.values());
+    const keys = await this.db.list("anime:");
+    const shows: AnimeShow[] = [];
+    
+    for (const key of keys) {
+      const show = await this.db.get(key);
+      if (show) {
+        shows.push(JSON.parse(show));
+      }
+    }
+    
+    return shows;
   }
 
   async createAnimeShow(insertShow: InsertAnimeShow): Promise<AnimeShow> {
@@ -43,9 +54,10 @@ export class MemStorage implements IStorage {
       title: insertShow.title,
       episodesWatched: insertShow.episodesWatched ?? 0,
       totalEpisodes: insertShow.totalEpisodes ?? null,
+      totalSeasons: insertShow.totalSeasons ?? null,
       status: insertShow.status ?? "watching",
     };
-    this.animeShows.set(id, show);
+    await this.db.set(`anime:${id}`, JSON.stringify(show));
     return show;
   }
 
@@ -53,24 +65,39 @@ export class MemStorage implements IStorage {
     id: string,
     updates: Partial<InsertAnimeShow>
   ): Promise<AnimeShow | undefined> {
-    const show = this.animeShows.get(id);
+    const show = await this.getAnimeShow(id);
     if (!show) return undefined;
 
     const updated = { ...show, ...updates };
-    this.animeShows.set(id, updated);
+    await this.db.set(`anime:${id}`, JSON.stringify(updated));
     return updated;
   }
 
   async deleteAnimeShow(id: string): Promise<boolean> {
-    return this.animeShows.delete(id);
+    const show = await this.getAnimeShow(id);
+    if (!show) return false;
+    
+    await this.db.delete(`anime:${id}`);
+    return true;
   }
 
   async getMovie(id: string): Promise<Movie | undefined> {
-    return this.movies.get(id);
+    const movie = await this.db.get(`movie:${id}`);
+    return movie ? JSON.parse(movie) : undefined;
   }
 
   async getAllMovies(): Promise<Movie[]> {
-    return Array.from(this.movies.values());
+    const keys = await this.db.list("movie:");
+    const movies: Movie[] = [];
+    
+    for (const key of keys) {
+      const movie = await this.db.get(key);
+      if (movie) {
+        movies.push(JSON.parse(movie));
+      }
+    }
+    
+    return movies;
   }
 
   async createMovie(insertMovie: InsertMovie): Promise<Movie> {
@@ -81,13 +108,17 @@ export class MemStorage implements IStorage {
       isAnime: insertMovie.isAnime ?? 0,
       watchCount: insertMovie.watchCount ?? 1,
     };
-    this.movies.set(id, movie);
+    await this.db.set(`movie:${id}`, JSON.stringify(movie));
     return movie;
   }
 
   async deleteMovie(id: string): Promise<boolean> {
-    return this.movies.delete(id);
+    const movie = await this.getMovie(id);
+    if (!movie) return false;
+    
+    await this.db.delete(`movie:${id}`);
+    return true;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new ReplitDBStorage();
